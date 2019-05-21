@@ -48,22 +48,17 @@ public class RulesProcessor {
 		        .collect(Collectors.toList());
 	}
 	
-	public List<TxnAttributes> applyTxnRulesRecursevely(
-			List<TxnAttributes> data, List<TxnAttributes> selected, int i, IntraDayTxn rule){
-		List<TxnAttributes> selectedItems= selected;
-		if(i==0){
-			selectedItems.add(data.get(i));
-			return applyTxnRulesRecursevely(data, selectedItems, ++i, rule);
-		}
-		if(data.size()-1>i){
-			TxnAttributes item = data.get(i);
-			if(selectedItems.stream().filter(txnItem ->
-			rule.eval(txnItem, item)).count()>0){
-				selectedItems.add(item);
-			}
-			return applyTxnRulesRecursevely(data, selectedItems, ++i, rule);
-		}
-		return selectedItems.size()>1? selectedItems: Collections.emptyList();
-	}
+	public List<TxnAttributes> applyTxnRulesRecursevely(final List<TxnAttributes> data, final List<TxnAttributes> selected, int i,
+        final IntraDayTxn rule) {
+        TxnAttributes item = data.get(i);
+        List<TxnAttributes> expectedItems = data.stream().filter(d -> rule.eval(d, item)).collect(Collectors.toList());
+        if (expectedItems.size() > 0) {
+            expectedItems.stream().forEach(ei -> selected.add(ei));
+            List<TxnAttributes> reducedList = diffList(data, selected);
+            data.clear();
+            return applyTxnRulesRecursevely(diffList(reducedList, selected), selected, 0, rule);
+        }
+        return applyTxnRulesRecursevely(diffList(data, selected), selected, ++i, rule);
+    }
 
 }
