@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,12 +23,12 @@ import com.opencsv.CSVWriter;
 
 public class CSVFileProcessorImp implements FileProcessor {
 
-	public List<List<String>> getParsedContent(String file) throws FileNotFoundException, IOException {
-		List<List<String>> records = new ArrayList<List<String>>();
+	public List<String[]> getParsedContent(String file) throws FileNotFoundException, IOException {
+		List<String[]> records = new ArrayList<String[]>();
 		try (CSVReader csvReader = new CSVReader(new FileReader(file))) {
 		    String[] values = null;
 		    while ((values = csvReader.readNext()) != null) {
-		        records.add(Arrays.asList(values));
+		        records.add(values);
 		    }
 		}
 		records.remove(0);
@@ -34,16 +36,10 @@ public class CSVFileProcessorImp implements FileProcessor {
 	}
 	
 	public void exportReport(List<String[]> stringArray) throws IOException {
-		try {
-			createIfNotPresent("src/main/java/resource/writtenAll.csv");
-			Path path = Paths.get(
-				      ClassLoader.getSystemResource("src/main/java/resource/writtenAll.csv").toURI());
-			CSVWriter writer = new CSVWriter(new FileWriter(path.toString()));
-		     writer.writeAll(stringArray);
-		     writer.close();
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
+		createIfNotPresent("src/main/java/resource/Sample_output.csv");
+		CSVWriter writer = new CSVWriter(new FileWriter("src/main/java/resource/Sample_output.csv"));
+		 writer.writeAll(stringArray);
+		 writer.close();
 	}
 	
 	private void createIfNotPresent(String path) throws IOException{

@@ -9,7 +9,7 @@ import org.sapient.vibhor.FeeCalc.Model.TxnAttributes;
 
 public interface FileProcessor {
 	
-	public List<List<String>> getParsedContent(String string) throws FileNotFoundException, IOException;
+	public List<String[]> getParsedContent(String string) throws FileNotFoundException, IOException;
 	public void exportReport(List<String[]> stringArray) throws IOException;
 
 }
